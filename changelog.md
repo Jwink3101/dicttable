@@ -5,6 +5,7 @@
 * Major revision and new name. Now `DictTable`. Indexes everything unless set otherwise
 * Updated tests:
     * Includes performance tests to ensure O(1) 
+* Still supports python2 but that will likely go away soon
 
 ## 20191123
 

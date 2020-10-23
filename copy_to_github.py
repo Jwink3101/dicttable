@@ -37,6 +37,7 @@ cmd = [
 
 subprocess.check_call(cmd)
 
+os.remove('.FILES')
 
 os.chdir(DST)
 
@@ -48,5 +49,5 @@ if len(sys.argv)>1:
 
 cmd = ['git','commit','-am','{}Copy from local devel repo: {}'.format(msg,pp)]
 subprocess.call(cmd)
-
 subprocess.call(['git','commit','--amend'])
+
