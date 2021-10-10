@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import unicode_literals
 
-__version__ = "20201023.0"
+__version__ = "20211010.0"
 __author__ = "Justin Winokur"
 
 import copy
