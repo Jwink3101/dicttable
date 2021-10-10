@@ -1,5 +1,12 @@
 # Changelog
 
+## 20211010.0
+
+* Adds `del DB[query]` capability.
+* Adds `DB.pop(query)` capability.
+* Tests for both. Also discovered bug related to `DB.query(attrib=[])` but that is fixed and tested as part of the new tests
+
+
 ## 20200825.0
 
 * Major revision and new name. Now `DictTable`. Indexes everything unless set otherwise

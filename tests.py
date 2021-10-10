@@ -18,8 +18,6 @@ if not (os.path.abspath(os.path.dirname(__file__))
 _emptyList = dicttable._emptyList
 DictTable = dicttable.DictTable
 
-
-
 def test_list_val():
     items = [
         {'first':'John', 'last':'Lennon','born':1940,'role':['guitar','strings']},      # 0
@@ -199,8 +197,9 @@ def test_index():
     DB._index(0)
     DB.remove(DB.Q.last == 'Lennon')
     DB._index(0)
-    
-def test_removal():
+
+@pytest.mark.parametrize("use_del", [False,True])
+def test_removal(use_del):
     items = [
         {'first':'John', 'last':'Lennon','born':1940,'role':'guitar'},      # 0
         {'first':'Paul', 'last':'McCartney','born':1942,'role':'bass'},     # 1
@@ -214,7 +213,10 @@ def test_removal():
     assert DB[3] == items[3]
     
     # This also tests the `_index` term
-    DB.remove(_index=3)
+    if use_del:
+        del DB[dict(_index=3)]
+    else:
+        DB.remove(_index=3)
 
     with pytest.raises(ValueError): # it won't let you get this item
         DB[3]
@@ -230,20 +232,50 @@ def test_removal():
     assert DB.N == 4
     
     with pytest.raises(ValueError): # No matches
-        DB.remove(first='Peter')
+        if use_del:
+            del DB[{'first':'Peter'}]
+        else:
+            DB.remove(first='Peter')
     
     # Remove an empty list element
     DB.query_one(first='Paul')['role'] = []
     DB.reindex('role')
     assert DB.query_one(role=[])['first'] == 'Paul' # Test it
-    DB.remove(role=[])
+    if use_del:
+        del DB[dict(role=[])]
+    else:
+        DB.remove(role=[])
     assert DB.query_one(role=[]) is None
     
     # Try to delete after a change without reindex
     DB.query_one(born=1940)['last'] = 'no last name'
     #... do not reindex
     with pytest.raises(ValueError): # No matches
-        DB.remove(born=1940)
+        if use_del:
+            del DB[dict(born=1940)]
+        else:
+            DB.remove(born=1940)
+
+def test_pop():
+    """ Test pop"""
+    items = [
+        {'first':'John', 'last':'Lennon','born':1940,'role':'guitar'},
+        {'first':'Paul', 'last':'McCartney','born':1942,'role':'bass'},
+        {'first':'George','last':'Harrison','born':1943,'role':'guitar'},
+        {'first':'Ringo','last':'Starr','born':1940,'role':'drums'},
+        {'first':'George','last':'Martin','born':1926,'role':'producer'}
+    ]
+    DB = DictTable(items)
+    
+    item = DB.pop(first='John')
+    assert len(DB) == 4
+    assert item == {'first': 'John', 'last': 'Lennon', 'born': 1940, 'role': 'guitar'}
+    assert {'first':'John'} not in DB
+    
+    with pytest.raises(KeyError):
+        DB.pop(first='John')
+    with pytest.raises(ValueError):
+        DB.pop(first='George')
 
 def test_reindex_update():
     items = [
@@ -682,6 +714,7 @@ def test_performance():
     
     It is an approximation and will not be perfect
     """
+#     return
     nt = 500
     N = 100000
     n = 1000
@@ -717,7 +750,9 @@ if __name__ == '__main__':
     test_adv_queries()
     test_items_iteritems()
     test_index()
-    test_removal()
+    test_removal(False)
+    test_removal(True)
+    test_pop()
     test_reindex_update()
     test_all_query_methods()
     test_add_attribute()
